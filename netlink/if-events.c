@@ -17,6 +17,8 @@
 /* printf */
 #include <stdio.h>
 
+/* verbose output */
+int verbose = 0;
 
 /* create netlink socket and return socket fd */
 int create_socket() {
@@ -39,6 +41,13 @@ int create_socket() {
 /* parse routing attribute */
 int parse_rta(struct rtattr *rta) {
 	struct rtnl_link_stats *stats;
+
+	if (verbose) {
+		printf("routing attribute:\n"
+		       "  len: %d,\n"
+		       "  type: %d,\n",
+		       rta->rta_len, rta->rta_type);
+	}
 
 	switch (rta->rta_type) {
 	case IFLA_UNSPEC:
@@ -79,7 +88,10 @@ int parse_rta(struct rtattr *rta) {
 		       stats->rx_packets, stats->tx_packets);
 		break;
 	default:
-		printf("  other\n");
+		if (verbose) {
+			printf("  other\n");
+		}
+		break;
 	}
 
 	return 0;
@@ -89,24 +101,22 @@ int parse_rta(struct rtattr *rta) {
 int parse_link_message(struct nlmsghdr *nh) {
 	struct ifinfomsg *ifi = (struct ifinfomsg *)(nh + 1);
 
-	printf("interface info msg:\n"
-	       "  family: %d,\n"
-	       "  type: %d,\n"
-	       "  index: %d,\n"
-	       "  flags: %d,\n"
-	       "  change: %d,\n",
-	       ifi->ifi_family, ifi->ifi_type, ifi->ifi_index, ifi->ifi_flags,
-	       ifi->ifi_change);
+	if (verbose) {
+		printf("interface info msg:\n"
+		       "  family: %d,\n"
+		       "  type: %d,\n"
+		       "  index: %d,\n"
+		       "  flags: %d,\n"
+		       "  change: %d,\n",
+		       ifi->ifi_family, ifi->ifi_type, ifi->ifi_index,
+		       ifi->ifi_flags, ifi->ifi_change);
+	}
 
 	/* parse attributes */
 	int len = nh->nlmsg_len - sizeof(*ifi);
 	struct rtattr *rta;
 	for (rta = (struct rtattr *) (ifi + 1); RTA_OK (rta, len);
 	     rta = RTA_NEXT (rta, len)) {
-		printf("routing attribute:"
-		       "  len: %d,\n"
-		       "  type: %d,\n",
-		       rta->rta_len, rta->rta_type);
 		parse_rta(rta);
 	}
 
@@ -115,33 +125,35 @@ int parse_link_message(struct nlmsghdr *nh) {
 
 /* parse netlink message */
 int parse_message(struct nlmsghdr *nh) {
+	if (verbose) {
+		printf("netlink msg:\n"
+		       "  len: %d,\n"
+		       "  type: %d,\n"
+		       "  flags: %d,\n"
+		       "  seq: %d,\n"
+		       "  pid: %d\n",
+		       nh->nlmsg_len, nh->nlmsg_type, nh->nlmsg_flags,
+		       nh->nlmsg_seq, nh->nlmsg_pid);
+	}
+
 	switch (nh->nlmsg_type) {
 	case RTM_NEWLINK:
-		printf("new link ");
+		printf("new link\n");
 		parse_link_message(nh);
 		break;
 	case RTM_DELLINK:
-		printf("del link ");
+		printf("del link\n");
 		parse_link_message(nh);
 		break;
 	case RTM_NEWADDR:
-		printf("new addr ");
+		printf("new addr\n");
 		break;
 	case RTM_DELADDR:
-		printf("del addr ");
+		printf("del addr\n");
 		break;
 	default:
-		printf("other ");
+		printf("other\n");
 	}
-
-	printf("netlink msg:\n"
-	       "  len: %d,\n"
-	       "  type: %d,\n"
-	       "  flags: %d,\n"
-	       "  seq: %d,\n"
-	       "  pid: %d\n",
-	       nh->nlmsg_len, nh->nlmsg_type, nh->nlmsg_flags,
-	       nh->nlmsg_seq, nh->nlmsg_pid);
 
 	return 0;
 }
