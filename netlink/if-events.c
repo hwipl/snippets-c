@@ -36,6 +36,37 @@ int create_socket() {
 	return fd;
 }
 
+/* parse netlink message */
+int parse_message(struct nlmsghdr *nh) {
+	switch (nh->nlmsg_type) {
+	case RTM_NEWLINK:
+		printf("new link ");
+		break;
+	case RTM_DELLINK:
+		printf("del link ");
+		break;
+	case RTM_NEWADDR:
+		printf("new addr ");
+		break;
+	case RTM_DELADDR:
+		printf("del addr ");
+		break;
+	default:
+		printf("other ");
+	}
+
+	printf("netlink msg:\n"
+	       "  len: %d,\n"
+	       "  type: %d,\n"
+	       "  flags: %d,\n"
+	       "  seq: %d,\n"
+	       "  pid: %d\n",
+	       nh->nlmsg_len, nh->nlmsg_type, nh->nlmsg_flags,
+	       nh->nlmsg_seq, nh->nlmsg_pid);
+
+	return 0;
+}
+
 /* read a single netlink messages from socket fd */
 int read_message(int fd) {
 	/* 8192 to avoid msg truncation on platforms with page size > 4096 */
@@ -63,14 +94,7 @@ int read_message(int fd) {
 			return -1;
 		}
 		/* parse payload */
-		printf("netlink msg:\n"
-		       "  len: %d,\n"
-		       "  type: %d,\n"
-		       "  flags: %d,\n"
-		       "  seq: %d,\n"
-		       "  pid: %d\n",
-		       nh->nlmsg_len, nh->nlmsg_type, nh->nlmsg_flags,
-		       nh->nlmsg_seq, nh->nlmsg_pid);
+		parse_message(nh);
 	}
 
 	return 0;
