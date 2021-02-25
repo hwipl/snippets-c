@@ -36,6 +36,55 @@ int create_socket() {
 	return fd;
 }
 
+/* parse routing attribute */
+int parse_rta(struct rtattr *rta) {
+	struct rtnl_link_stats *stats;
+
+	switch (rta->rta_type) {
+	case IFLA_UNSPEC:
+		printf("  unspec\n");
+		break;
+	case IFLA_ADDRESS:
+		printf("  hw addr: ");
+		for (int i = 0; i < RTA_PAYLOAD(rta); i++) {
+			printf("%x", ((unsigned char *) RTA_DATA(rta))[i]);
+		}
+		printf("\n");
+		break;
+	case IFLA_BROADCAST:
+		printf("  bc addr: ");
+		for (int i = 0; i < RTA_PAYLOAD(rta); i++) {
+			printf("%x", ((unsigned char *) RTA_DATA(rta))[i]);
+		}
+		printf("\n");
+		break;
+	case IFLA_IFNAME:
+		printf("  ifname: %s\n", (char *) RTA_DATA(rta));
+		break;
+	case IFLA_MTU:
+		printf("  mtu: %u\n", *((unsigned int *) RTA_DATA(rta)));
+		break;
+	case IFLA_LINK:
+		printf("  link: %d\n", *((int *) RTA_DATA(rta)));
+		break;
+	case IFLA_QDISC:
+		printf("  qdisc: %s\n", (char *) RTA_DATA(rta));
+		break;
+	case IFLA_STATS:
+		stats = RTA_DATA(rta);
+		printf("  stats: \n"
+		       "    rx pkts: %d,\n"
+		       "    tx pkts: %d,\n"
+		       "    ...\n",
+		       stats->rx_packets, stats->tx_packets);
+		break;
+	default:
+		printf("  other\n");
+	}
+
+	return 0;
+}
+
 /* parse link netlink message */
 int parse_link_message(struct nlmsghdr *nh) {
 	struct ifinfomsg *ifi = (struct ifinfomsg *)(nh + 1);
@@ -58,6 +107,7 @@ int parse_link_message(struct nlmsghdr *nh) {
 		       "  len: %d,\n"
 		       "  type: %d,\n",
 		       rta->rta_len, rta->rta_type);
+		parse_rta(rta);
 	}
 
 	return 0;
