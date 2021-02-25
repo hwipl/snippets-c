@@ -48,6 +48,19 @@ int parse_link_message(struct nlmsghdr *nh) {
 	       "  change: %d,\n",
 	       ifi->ifi_family, ifi->ifi_type, ifi->ifi_index, ifi->ifi_flags,
 	       ifi->ifi_change);
+
+	/* parse attributes */
+	int len = nh->nlmsg_len - sizeof(*ifi);
+	struct rtattr *rta;
+	for (rta = (struct rtattr *) (ifi + 1); RTA_OK (rta, len);
+	     rta = RTA_NEXT (rta, len)) {
+		printf("routing attribute:"
+		       "  len: %d,\n"
+		       "  type: %d,\n",
+		       rta->rta_len, rta->rta_type);
+	}
+
+	return 0;
 }
 
 /* parse netlink message */
