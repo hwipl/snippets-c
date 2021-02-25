@@ -36,14 +36,30 @@ int create_socket() {
 	return fd;
 }
 
+/* parse link netlink message */
+int parse_link_message(struct nlmsghdr *nh) {
+	struct ifinfomsg *ifi = (struct ifinfomsg *)(nh + 1);
+
+	printf("interface info msg:\n"
+	       "  family: %d,\n"
+	       "  type: %d,\n"
+	       "  index: %d,\n"
+	       "  flags: %d,\n"
+	       "  change: %d,\n",
+	       ifi->ifi_family, ifi->ifi_type, ifi->ifi_index, ifi->ifi_flags,
+	       ifi->ifi_change);
+}
+
 /* parse netlink message */
 int parse_message(struct nlmsghdr *nh) {
 	switch (nh->nlmsg_type) {
 	case RTM_NEWLINK:
 		printf("new link ");
+		parse_link_message(nh);
 		break;
 	case RTM_DELLINK:
 		printf("del link ");
+		parse_link_message(nh);
 		break;
 	case RTM_NEWADDR:
 		printf("new addr ");
