@@ -1,4 +1,4 @@
-/* add veth interface pair and set interface names to IF_NAME1 and IF_NAME 2 */
+/* add veth interface pair and set interface names to IF_NAME1 and IF_NAME2 */
 
 /* netlink imports */
 #include <asm/types.h>
