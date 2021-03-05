@@ -45,21 +45,10 @@ int create_socket() {
 	return fd;
 }
 
-/* add link info attribute to buf and return its length */
-unsigned short add_link_info(char *buf) {
-	/* add link info attribute */
-	struct rtattr *info_rta = (struct rtattr *) buf;
-	info_rta->rta_type = IFLA_LINKINFO | NLA_F_NESTED;
-	info_rta->rta_len = 0; /* start with 0 */
-
-	/* add nested kind attribute to info attribute */
-	struct rtattr *kind_rta = RTA_DATA(info_rta);
-	kind_rta->rta_type = IFLA_INFO_KIND;
-	kind_rta->rta_len = RTA_LENGTH(strnlen(KIND_VETH, KIND_MAXLEN));
-	memcpy(RTA_DATA(kind_rta), KIND_VETH, strnlen(KIND_VETH, KIND_MAXLEN));
-
+/* add link info data attribute to buf and return its length */
+unsigned short add_link_info_data(char *buf) {
 	/* add nested data attribute to info attribute */
-	struct rtattr *data_rta = RTA_DATA(info_rta) + kind_rta->rta_len;
+	struct rtattr *data_rta = (struct rtattr *) buf;
 	data_rta->rta_type = IFLA_INFO_DATA | NLA_F_NESTED;
 	data_rta->rta_len = 0; /* start with 0 */
 
@@ -87,8 +76,28 @@ unsigned short add_link_info(char *buf) {
 	/* update data attribute length */
 	data_rta->rta_len = RTA_LENGTH(peer_rta->rta_len);
 
+	return data_rta->rta_len;
+}
+
+/* add link info attribute to buf and return its length */
+unsigned short add_link_info(char *buf) {
+	/* add link info attribute */
+	struct rtattr *info_rta = (struct rtattr *) buf;
+	info_rta->rta_type = IFLA_LINKINFO | NLA_F_NESTED;
+	info_rta->rta_len = 0; /* start with 0 */
+
+	/* add nested kind attribute to info attribute */
+	struct rtattr *kind_rta = RTA_DATA(info_rta);
+	kind_rta->rta_type = IFLA_INFO_KIND;
+	kind_rta->rta_len = RTA_LENGTH(strnlen(KIND_VETH, KIND_MAXLEN));
+	memcpy(RTA_DATA(kind_rta), KIND_VETH, strnlen(KIND_VETH, KIND_MAXLEN));
+
+	/* add nested data attribute to info attribute */
+	char *data_buf = RTA_DATA(info_rta) + kind_rta->rta_len;
+	unsigned short data_len = add_link_info_data(data_buf);
+
 	/* update info attribute length */
-	info_rta->rta_len = RTA_LENGTH(kind_rta->rta_len + data_rta->rta_len);
+	info_rta->rta_len = RTA_LENGTH(kind_rta->rta_len + data_len);
 
 	return info_rta->rta_len;
 }
