@@ -45,48 +45,10 @@ int create_socket() {
 	return fd;
 }
 
-/* send request to get all links */
-int send_request(int fd) {
-	/* create socket address */
-	struct sockaddr_nl sa;
-	memset(&sa, 0, sizeof(sa));
-	sa.nl_family = AF_NETLINK;
-
-	/* create request message */
-	struct {
-		struct nlmsghdr hdr;
-		struct ifinfomsg ifi;
-		char attrbuf[1024];
-	} req;
-	memset(&req, 0, sizeof(req));
-
-	/* fill request header */
-	req.hdr.nlmsg_len = NLMSG_LENGTH(sizeof(req.ifi));
-	req.hdr.nlmsg_pid = 0;
-	req.hdr.nlmsg_seq = 1;
-	req.hdr.nlmsg_type = RTM_NEWLINK;
-	req.hdr.nlmsg_flags = NLM_F_REQUEST | NLM_F_CREATE;
-
-	/* fill request interface info */
-	req.ifi.ifi_type = ARPHRD_ETHER;
-	req.ifi.ifi_change = 0xffffffff;
-
-	/* add ifname attribute */
-	struct rtattr *ifname1_rta;
-	ifname1_rta = (struct rtattr *)(((char *) &req) +
-					NLMSG_ALIGN(req.hdr.nlmsg_len));
-	ifname1_rta->rta_type = IFLA_IFNAME;
-	ifname1_rta->rta_len = RTA_LENGTH(strnlen(IF_NAME1, IF_MAXLEN));
-	memcpy(RTA_DATA(ifname1_rta), IF_NAME1, strnlen(IF_NAME1, IF_MAXLEN));
-
-	/* update message length */
-	req.hdr.nlmsg_len = NLMSG_ALIGN(req.hdr.nlmsg_len) +
-		ifname1_rta->rta_len;
-
+/* add link info attribute to buf and return its length */
+unsigned short add_link_info(char *buf) {
 	/* add link info attribute */
-	struct rtattr *info_rta;
-	info_rta = (struct rtattr *)(((char *) &req) +
-				     NLMSG_ALIGN(req.hdr.nlmsg_len));
+	struct rtattr *info_rta = (struct rtattr *) buf;
 	info_rta->rta_type = IFLA_LINKINFO | NLA_F_NESTED;
 	info_rta->rta_len = 0; /* start with 0 */
 
@@ -128,8 +90,53 @@ int send_request(int fd) {
 	/* update info attribute length */
 	info_rta->rta_len = RTA_LENGTH(kind_rta->rta_len + data_rta->rta_len);
 
+	return info_rta->rta_len;
+}
+
+/* send request to get all links */
+int send_request(int fd) {
+	/* create socket address */
+	struct sockaddr_nl sa;
+	memset(&sa, 0, sizeof(sa));
+	sa.nl_family = AF_NETLINK;
+
+	/* create request message */
+	struct {
+		struct nlmsghdr hdr;
+		struct ifinfomsg ifi;
+		char attrbuf[1024];
+	} req;
+	memset(&req, 0, sizeof(req));
+
+	/* fill request header */
+	req.hdr.nlmsg_len = NLMSG_LENGTH(sizeof(req.ifi));
+	req.hdr.nlmsg_pid = 0;
+	req.hdr.nlmsg_seq = 1;
+	req.hdr.nlmsg_type = RTM_NEWLINK;
+	req.hdr.nlmsg_flags = NLM_F_REQUEST | NLM_F_CREATE;
+
+	/* fill request interface info */
+	req.ifi.ifi_type = ARPHRD_ETHER;
+	req.ifi.ifi_change = 0xffffffff;
+
+	/* add ifname attribute */
+	struct rtattr *ifname1_rta;
+	ifname1_rta = (struct rtattr *)(((char *) &req) +
+					NLMSG_ALIGN(req.hdr.nlmsg_len));
+	ifname1_rta->rta_type = IFLA_IFNAME;
+	ifname1_rta->rta_len = RTA_LENGTH(strnlen(IF_NAME1, IF_MAXLEN));
+	memcpy(RTA_DATA(ifname1_rta), IF_NAME1, strnlen(IF_NAME1, IF_MAXLEN));
+
 	/* update message length */
-	req.hdr.nlmsg_len = NLMSG_ALIGN(req.hdr.nlmsg_len) + info_rta->rta_len;
+	req.hdr.nlmsg_len = NLMSG_ALIGN(req.hdr.nlmsg_len) +
+		ifname1_rta->rta_len;
+
+	/* add link info attribute */
+	char *info_buf = (((char *) &req) + NLMSG_ALIGN(req.hdr.nlmsg_len));
+	unsigned short info_len = add_link_info(info_buf);
+
+	/* update message length */
+	req.hdr.nlmsg_len = NLMSG_ALIGN(req.hdr.nlmsg_len) + info_len;
 
 	/* send request */
 	struct iovec iov = { &req, req.hdr.nlmsg_len };
