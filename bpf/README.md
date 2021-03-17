@@ -10,7 +10,7 @@ $ clang -O2 -emit-llvm -c $SRC -o - -fno-stack-protector | \
 	llc -march=bpf -filetype=obj -o $FILE
 ```
 
-## Loading
+## loading
 
 ### tc
 
@@ -32,7 +32,7 @@ Load bpf program in section `$SEC` (e.g., `accept_all`) of file `$FILE` (e.g.,
 # ip link set dev $DEV xdp obj $FILE sec $SEC
 ```
 
-## Unloading
+## unloading
 
 ### tc
 
