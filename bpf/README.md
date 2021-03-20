@@ -1,5 +1,15 @@
 # bpf
 
+bpf programs:
+* tc-accept: minimal tc bpf program that accepts all packets
+* xdp-accept: minimal xdp program that accepts all packets
+
+custom loaders:
+* tc-load: load tc bpf program and attach it to an interface
+* tc-unload: detach the tc bpf program attached with tc-load
+* xdp-load: load xdp program and attach it to an interface
+* xdp-unload: detach the xdp program attached with xdp-load
+
 ## building
 
 ### bpf
