@@ -2,12 +2,23 @@
 
 ## building
 
+### bpf
+
 Build the c source code in file `$SRC` (e.g., `xdp-accept.c`) and output it as
 elf file `$FILE` (e.g., `xdp-accept.o`):
 
 ```console
 $ clang -O2 -emit-llvm -c $SRC -o - -fno-stack-protector | \
 	llc -march=bpf -filetype=obj -o $FILE
+```
+
+### loaders
+
+Build the custom bpf loader in file `$SRC` (e.g., `xdp-load.c`) and output it
+as file `$FILE` (e.g., `xdp-load`) with clang:
+
+```console
+$ clang $SRC -o $FILE -l bpf
 ```
 
 ## loading
