@@ -31,9 +31,11 @@
 * get-links: get list of interfaces
 * del-link: remove interface
 
-## tc qdiscs
+## tc
 
-* add-qdisc: add qdisc to interface
+* add-qdisc: add clsact qdisc to interface
+* add-tcfilter: add bpf filter to clsact qdisc on interface
+* del-qdisc: remove clsact qdisc from interface
 
 ## veth interfaces
 
