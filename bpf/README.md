@@ -27,20 +27,35 @@ $ clang $SRC -o $FILE -l bpf
 
 Load bpf program in section `$SEC` (e.g., `accept_all`) of file `$FILE` (e.g.,
 `tc-accept.o`) and attach it to device `$DEV` (e.g., `veth0`) as direct-action
-tc filter:
+tc filter with the tc tool:
 
 ```console
 # tc qdisc add dev $DEV clsact
 # tc filter add dev $DEV ingress bpf da obj $FILE sec $SEC
 ```
 
+Alternatively, load the bpf program in `$FILE` and attach it to `$DEV` with the
+loader tc-load:
+
+```console
+# ./tc-load $FILE $DEV
+```
+
 ### xdp
 
 Load bpf program in section `$SEC` (e.g., `accept_all`) of file `$FILE` (e.g.,
-`xdp-accept.o`) and attach it to device `$DEV` (e.g., `veth0`):
+`xdp-accept.o`) and attach it to device `$DEV` (e.g., `veth0`) with the ip
+tool:
 
 ```console
 # ip link set dev $DEV xdp obj $FILE sec $SEC
+```
+
+Alternatively, load the bpf program in `$FILE` and attach it to `$DEV` with the
+loader xdp-load:
+
+```console
+# ./xdp-load $FILE $DEV
 ```
 
 ## unloading
@@ -48,16 +63,28 @@ Load bpf program in section `$SEC` (e.g., `accept_all`) of file `$FILE` (e.g.,
 ### tc
 
 Remove the clsact qdisc from device `$DEV` (e.g., `veth0`) and, thus, the
-direct-action tc filter and the active bpf program:
+direct-action tc filter and the active bpf program with the tc tool:
 
 ```console
 # tc qdisc del dev $DEV clsact
 ```
 
+Alternatively, remove the bpf program from `$DEV` with tc-unload:
+
+```console
+# ./tc-unload $DEV
+```
+
 ### xdp
 
-Detach active xdp program from device `$DEV` (e.g., `veth0`):
+Detach active xdp program from device `$DEV` (e.g., `veth0`) with the ip tool:
 
 ```console
 # ip link set dev $DEV xdp off
+```
+
+Alternatively, remove the bpf program from `$DEV` with xdp-unload:
+
+```console
+# ./xdp-unload $DEV
 ```
