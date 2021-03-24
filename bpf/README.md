@@ -3,6 +3,10 @@
 bpf programs:
 * tc-accept: minimal tc bpf program that accepts all packets
 * xdp-accept: minimal xdp program that accepts all packets
+* xdp-bytes: xdp program that counts number of received bytes
+* xdp-count: xdp program that counts number of received packets
+* xdp-tcp6count: xdp program that counts number of received tcp/ipv6 packets
+* xdp-udp4count: xdp program that counts number of received udp/ipv4 packets
 
 custom loaders:
 * tc-load: load tc bpf program and attach it to an interface
