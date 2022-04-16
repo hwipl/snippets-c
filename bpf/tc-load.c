@@ -117,22 +117,25 @@ int send_request_filter(int fd, const char *if_name, int bpf_fd) {
 	char *attr_buf = msg_buf + NLMSG_SPACE(sizeof(struct tcmsg));
 	struct rtattr *kind_rta = (struct rtattr *) attr_buf;
 	const char *kind = "bpf";
-	struct rtattr *options_rta = (struct rtattr *)(attr_buf +
-						       RTA_SPACE(strlen(kind)));
+	struct rtattr *options_rta =
+		(struct rtattr *) (attr_buf +
+				   RTA_SPACE(strlen(kind) + 1));
 	struct rtattr *fd_rta = RTA_DATA(options_rta);
-	struct rtattr *name_rta = (struct rtattr *)(((char *) fd_rta) +
-						    RTA_SPACE(sizeof(bpf_fd)));
+	struct rtattr *name_rta =
+		(struct rtattr *) (((char *) fd_rta) +
+				   RTA_SPACE(sizeof(bpf_fd)));
 	const char *name = "accept-all";
-	struct rtattr *flags_rta = (struct rtattr *)(((char *) name_rta) +
-						     RTA_SPACE(strlen(name)));
+	struct rtattr *flags_rta =
+		(struct rtattr *) (((char *) name_rta) +
+				   RTA_SPACE(strlen(name) + 1));
 	__u32 flags = TCA_BPF_FLAG_ACT_DIRECT;
 
 	/* fill header */
 	hdr->nlmsg_len = NLMSG_SPACE(sizeof(struct tcmsg)) +
-		RTA_SPACE(strlen(kind)) +
+		RTA_SPACE(strlen(kind) + 1) +
 		RTA_SPACE(0) +
 		RTA_SPACE(sizeof(bpf_fd)) +
-		RTA_SPACE(strlen(name)) +
+		RTA_SPACE(strlen(name) + 1) +
 		RTA_LENGTH(sizeof(flags));
 	hdr->nlmsg_pid = 0;
 	hdr->nlmsg_seq = 1;
@@ -148,13 +151,13 @@ int send_request_filter(int fd, const char *if_name, int bpf_fd) {
 
 	/* fill kind attribute */
 	kind_rta->rta_type = TCA_KIND;
-	kind_rta->rta_len = RTA_LENGTH(strlen(kind));
-	memcpy(RTA_DATA(kind_rta), kind, strlen(kind));
+	kind_rta->rta_len = RTA_LENGTH(strlen(kind) + 1);
+	memcpy(RTA_DATA(kind_rta), kind, strlen(kind) + 1);
 
 	/* fill options attribute */
 	options_rta->rta_type = TCA_OPTIONS;
 	options_rta->rta_len = RTA_SPACE(0) + RTA_SPACE(sizeof(bpf_fd)) +
-		RTA_SPACE(strlen(name)) + RTA_LENGTH(sizeof(flags));
+		RTA_SPACE(strlen(name) + 1) + RTA_LENGTH(sizeof(flags));
 
 	/* fill bpf fd attribute */
 	fd_rta->rta_type = TCA_BPF_FD;
@@ -163,8 +166,8 @@ int send_request_filter(int fd, const char *if_name, int bpf_fd) {
 
 	/* fill bpf name attribute */
 	name_rta->rta_type = TCA_BPF_NAME;
-	name_rta->rta_len = RTA_LENGTH(strlen(name));
-	memcpy(RTA_DATA(name_rta), name, strlen(name));
+	name_rta->rta_len = RTA_LENGTH(strlen(name) + 1);
+	memcpy(RTA_DATA(name_rta), name, strlen(name) + 1);
 
 	/* fill bpf flags */
 	flags_rta->rta_type = TCA_BPF_FLAGS;
