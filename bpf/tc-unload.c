@@ -1,8 +1,5 @@
 /* unload current bpf program on interface specified in first command line
  * argument by removing the clsact qdisc
- *
- * this is a copy of ../netlink/del-qdisc.c
- *
  */
 
 /* netlink imports */
