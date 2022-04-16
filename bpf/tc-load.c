@@ -78,7 +78,7 @@ int send_request_qdisc(int fd, const char *if_name) {
 
 	/* fill header */
 	hdr->nlmsg_len = NLMSG_SPACE(sizeof(struct tcmsg)) +
-		RTA_LENGTH(strlen(kind));
+		RTA_LENGTH(strlen(kind) + 1);
 	hdr->nlmsg_pid = 0;
 	hdr->nlmsg_seq = 1;
 	hdr->nlmsg_type = RTM_NEWQDISC;
@@ -92,8 +92,8 @@ int send_request_qdisc(int fd, const char *if_name) {
 
 	/* fill kind attribute */
 	kind_rta->rta_type = TCA_KIND;
-	kind_rta->rta_len = RTA_LENGTH(strlen(kind));
-	memcpy(RTA_DATA(kind_rta), kind, strlen(kind));
+	kind_rta->rta_len = RTA_LENGTH(strlen(kind) + 1);
+	memcpy(RTA_DATA(kind_rta), kind, strlen(kind) + 1);
 
 	/* send request */
 	struct iovec iov = { msg_buf, hdr->nlmsg_len };
