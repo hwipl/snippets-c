@@ -71,14 +71,13 @@ int send_request_qdisc(int fd, const char *if_name) {
 	/* create request message */
 	char msg_buf[512] = { 0 };
 	struct nlmsghdr *hdr = (struct nlmsghdr *) msg_buf;
-	struct tcmsg *tcm = (struct tcmsg *) (msg_buf + sizeof(*hdr));
-	char *attr_buf = msg_buf + NLMSG_ALIGN(NLMSG_LENGTH(sizeof(struct
-								   tcmsg)));
+	struct tcmsg *tcm = NLMSG_DATA(hdr);
+	char *attr_buf = msg_buf + NLMSG_SPACE(sizeof(struct tcmsg));
 	struct rtattr *kind_rta = (struct rtattr *) attr_buf;
 	const char *kind = "clsact";
 
 	/* fill header */
-	hdr->nlmsg_len = NLMSG_ALIGN(NLMSG_LENGTH(sizeof(struct tcmsg))) +
+	hdr->nlmsg_len = NLMSG_SPACE(sizeof(struct tcmsg)) +
 		RTA_LENGTH(strlen(kind));
 	hdr->nlmsg_pid = 0;
 	hdr->nlmsg_seq = 1;
