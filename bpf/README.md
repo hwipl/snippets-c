@@ -9,10 +9,10 @@ bpf programs:
 * xdp-udp4count: xdp program that counts number of received udp/ipv4 packets
 
 custom loaders:
-* tc-load: load tc bpf program and attach it to an interface
-* tc-unload: detach the tc bpf program attached with tc-load
-* xdp-load: load xdp program and attach it to an interface
-* xdp-unload: detach the xdp program attached with xdp-load
+* tc-attach: load tc bpf program and attach it to an interface
+* tc-detach: detach the tc bpf program attached with tc-attach
+* xdp-attach: load xdp program and attach it to an interface
+* xdp-detach: detach the xdp program attached with xdp-attach
 
 ## building
 
@@ -28,8 +28,8 @@ $ clang -O2 -emit-llvm -c $SRC -o - -fno-stack-protector | \
 
 ### loaders
 
-Build the custom bpf loader in file `$SRC` (e.g., `xdp-load.c`) and output it
-as file `$FILE` (e.g., `xdp-load`) with clang:
+Build the custom bpf loader in file `$SRC` (e.g., `xdp-attach.c`) and output it
+as file `$FILE` (e.g., `xdp-attach`) with clang:
 
 ```console
 $ clang $SRC -o $FILE -l bpf
@@ -49,10 +49,10 @@ tc filter with the tc tool:
 ```
 
 Alternatively, load the bpf program in `$FILE` and attach it to `$DEV` with the
-loader tc-load:
+loader tc-attach:
 
 ```console
-# ./tc-load $FILE $DEV
+# ./tc-attach $FILE $DEV
 ```
 
 ### xdp
@@ -66,10 +66,10 @@ tool:
 ```
 
 Alternatively, load the bpf program in `$FILE` and attach it to `$DEV` with the
-loader xdp-load:
+loader xdp-attach:
 
 ```console
-# ./xdp-load $FILE $DEV
+# ./xdp-attach $FILE $DEV
 ```
 
 ## unloading
@@ -83,10 +83,10 @@ direct-action tc filter and the active bpf program with the tc tool:
 # tc qdisc del dev $DEV clsact
 ```
 
-Alternatively, remove the bpf program from `$DEV` with tc-unload:
+Alternatively, remove the bpf program from `$DEV` with tc-detach:
 
 ```console
-# ./tc-unload $DEV
+# ./tc-detach $DEV
 ```
 
 ### xdp
@@ -97,8 +97,8 @@ Detach active xdp program from device `$DEV` (e.g., `veth0`) with the ip tool:
 # ip link set dev $DEV xdp off
 ```
 
-Alternatively, remove the bpf program from `$DEV` with xdp-unload:
+Alternatively, remove the bpf program from `$DEV` with xdp-detach:
 
 ```console
-# ./xdp-unload $DEV
+# ./xdp-detach $DEV
 ```
