@@ -11,6 +11,8 @@ bpf programs:
 custom loaders:
 * tc-attach: load tc bpf program and attach it to an interface
 * tc-detach: detach the tc bpf program attached with tc-attach
+* tc-attach2: load tc bpf program and attach it to an interface
+* tc-detach2: detach the tc bpf program attached with tc-attach2
 * xdp-attach: load xdp program and attach it to an interface
 * xdp-detach: detach the xdp program attached with xdp-attach
 
@@ -49,10 +51,14 @@ tc filter with the tc tool:
 ```
 
 Alternatively, load the bpf program in `$FILE` and attach it to `$DEV` with the
-loader tc-attach:
+loader tc-attach or tc-attach2:
 
 ```console
 # ./tc-attach $FILE $DEV
+```
+
+```console
+# ./tc-attach2 $FILE $DEV
 ```
 
 ### xdp
@@ -83,10 +89,14 @@ direct-action tc filter and the active bpf program with the tc tool:
 # tc qdisc del dev $DEV clsact
 ```
 
-Alternatively, remove the bpf program from `$DEV` with tc-detach:
+Alternatively, remove the bpf program from `$DEV` with tc-detach or tc-detach2:
 
 ```console
 # ./tc-detach $DEV
+```
+
+```console
+# ./tc-detach2 $DEV
 ```
 
 ### xdp
