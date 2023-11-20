@@ -14,7 +14,7 @@
 // }
 
 // // destructor
-// __attribute__((constructor))
+// __attribute__((destructor))
 // static void custom_setsockopt_deinit() {
 // 	// deinitialize things here
 // }
