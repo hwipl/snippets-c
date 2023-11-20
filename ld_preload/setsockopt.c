@@ -7,6 +7,18 @@
 #define IP_UNICAST_IF           50
 #define IPV6_UNICAST_IF         76
 
+// // constructor
+// __attribute__((constructor))
+// static void custom_setsockopt_init() {
+// 	// initialize things here
+// }
+
+// // destructor
+// __attribute__((constructor))
+// static void custom_setsockopt_deinit() {
+// 	// deinitialize things here
+// }
+
 // setsockopt implementation that filters IP_UNICAST_IF and IPV6_UNICAST_IF
 int setsockopt(int socket, int level, int option_name,
 	       const void *option_value, socklen_t option_len) {
